@@ -27,6 +27,7 @@ public class StartAct extends AppCompatActivity {
     private DatabaseReference databaseReference=firebaseDatabase.getReference().getRoot();
   private Handler mHandler;
   private Runnable mRunnable;
+    private String hahah;
 
 
 

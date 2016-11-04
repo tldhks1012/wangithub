@@ -78,7 +78,14 @@
                 android:textCursorDrawable="@null"
                 android:textSize="15dp"/>
         </LinearLayout>
-
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="이메일은 비밀번호 찾을때 필요합니다.\n정확히 입력해주세요."
+            android:textColor="@color/colorPrimary"
+            android:textSize="10dp"
+            android:layout_margin="10dp"
+            />
     </LinearLayout>
 
     <Button

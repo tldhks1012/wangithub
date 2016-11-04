@@ -74,7 +74,9 @@
                     <ImageView
                         android:id="@+id/sign_img1"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                        android:layout_height="match_parent"
+
+                        android:cropToPadding="true"/>
 
                 </FrameLayout>
 
@@ -220,8 +222,14 @@
             android:layout_height="wrap_content"
             android:textSize="12dp"
             android:layout_marginLeft="10dp"
-            android:text="-사진은 최대 6장까지 등록이 가능합니다."/>
+            android:text="-메인 사진은 꼭 얼굴이 보이는 사진으로 등록해주세요."/>
     </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12dp"
+            android:layout_marginLeft="10dp"
+            android:text="-사진은 최대 6장까지 등록이 가능합니다."/>
     </LinearLayout>
 
 

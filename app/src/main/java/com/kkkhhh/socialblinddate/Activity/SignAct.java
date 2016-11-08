@@ -73,13 +73,10 @@ public class SignAct extends AppCompatActivity implements View.OnClickListener {
                 if(task.isSuccessful()){
                     String userID=mFirebaseAuth.getCurrentUser().getUid().toString();
                     userSignPutData(userID,emailStr);
+
                     Intent intent= new Intent(SignAct.this,SignProfileAct.class);
                     startActivity(intent);
                     progressDialog.cancel();
-                    SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(SignAct.this);
-                    SharedPreferences.Editor editor = mPref.edit();
-                    editor.putString("SIGN_FIRST_ACTIVITY","OK");
-                    editor.commit();
                     finish();
                 }else{
                     Toast.makeText(SignAct.this,"메일을 확인해주세요.",Toast.LENGTH_SHORT).show();

@@ -23,14 +23,18 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.kkkhhh.socialblinddate.Model.User;
 import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.R;
 
 import java.util.Arrays;
 
+import static android.R.attr.sharedUserId;
 import static android.R.attr.value;
 
 //////////// 회원가입 유저 프로필 입력 Act //////////////////
@@ -78,15 +82,15 @@ public class SignProfileAct extends AppCompatActivity implements View.OnClickLis
         localStr=dialogLocalBtn.getText().toString().trim();
 
         if(TextUtils.isEmpty(nicknameStr)){
-            Toast.makeText(getApplicationContext(),"닉네임을 입력해주세요.",Toast.LENGTH_SHORT);
+            Toast.makeText(getApplicationContext(),"닉네임을 입력해주세요.",Toast.LENGTH_SHORT).show();
 
         }else if(TextUtils.isEmpty(ageStr)){
-            Toast.makeText(getApplicationContext(),"나이를 입력해주세요.",Toast.LENGTH_SHORT);
+            Toast.makeText(getApplicationContext(),"나이를 입력해주세요.",Toast.LENGTH_SHORT).show();
         }else  if(TextUtils.isEmpty(genderStr)){
-            Toast.makeText(getApplicationContext(),"성별을 선택해주세요",Toast.LENGTH_SHORT);
+            Toast.makeText(getApplicationContext(),"성별을 선택해주세요",Toast.LENGTH_SHORT).show();
 
         }else if(TextUtils.isEmpty(localStr)){
-            Toast.makeText(getApplicationContext(),"지역을 선택해주세요.",Toast.LENGTH_SHORT);
+            Toast.makeText(getApplicationContext(),"지역을 선택해주세요.",Toast.LENGTH_SHORT).show();
         }else{
             ///전송
             writeUserSecond(nicknameStr,ageStr,localStr,genderStr);
@@ -121,9 +125,11 @@ public class SignProfileAct extends AppCompatActivity implements View.OnClickLis
     private void writeUserSecond(String nickname, String age, String local,String gender) {
         progressDialog.setMessage("정보를 저장중입니다.");
         progressDialog.show();
-        UserModel user = new UserModel(nickname, age,local,gender);
 
-        String uid=mFireAuth.getCurrentUser().getUid().toString();
+
+
+        final String uid=mFireAuth.getCurrentUser().getUid().toString();
+        UserModel user = new UserModel(nickname, age,local,gender);
         databaseReference.child("users").child(uid).child("profile").setValue(user, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
@@ -135,15 +141,12 @@ public class SignProfileAct extends AppCompatActivity implements View.OnClickLis
                     Intent intent = new Intent(SignProfileAct.this, SignImageAct.class);
                     startActivity(intent);
                     progressDialog.cancel();
-                    SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(SignProfileAct.this);
-                    SharedPreferences.Editor editor = mPref.edit();
-                    editor.putString("SIGN_SECOND_ACTIVITY", "OK");
-                    editor.commit();
                     finish();
                 }
             }
 
         });
+
     }
     ///버튼클릭 리스너
     @Override

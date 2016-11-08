@@ -18,9 +18,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.kkkhhh.socialblinddate.Model.User;
+import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.R;
 
-public class StartAct extends AppCompatActivity {
+public class StartAct extends AppCompatActivity{
 
   private FirebaseAuth firebaseAuth= FirebaseAuth.getInstance();
     private FirebaseDatabase firebaseDatabase=FirebaseDatabase.getInstance();
@@ -31,35 +32,20 @@ public class StartAct extends AppCompatActivity {
 
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
-        final SharedPreferences mPref = PreferenceManager.getDefaultSharedPreferences(StartAct.this);
         mRunnable = new Runnable() {
             @Override
             public void run() {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                String firstActivityCheck =mPref.getString("SIGN_FIRST_ACTIVITY","");
-                String secondActivityCheck=mPref.getString("SIGN_SECOND_ACTIVITY","");
-
-
+                final FirebaseUser user = firebaseAuth.getCurrentUser();
                     if(user !=null){
-                    if(firstActivityCheck.equals("OK")&&!secondActivityCheck.equals("OK")) {
-                        Log.d("FirstAct", firstActivityCheck);
-                        Intent intent = new Intent(StartAct.this, SignProfileAct.class);
-                        startActivity(intent);
-                        finish();
-                    }else if(firstActivityCheck.equals("OK")&&secondActivityCheck.equals("OK")){
-                        Log.d("SecondActivity",secondActivityCheck);
-                        Intent intent = new Intent(StartAct.this,SignImageAct.class);
-                        startActivity(intent);
-                        finish();
-                    }else{
-                        Intent intent = new Intent(StartAct.this,MainAct.class);
-                        startActivity(intent);
-                        finish();
-                    }
+                        String uid=user.getUid().toString();
+
+
                 }else{
                     Intent intent = new Intent(StartAct.this,WelcomeAct.class);
                     startActivity(intent);
@@ -72,5 +58,7 @@ public class StartAct extends AppCompatActivity {
         mHandler = new Handler();
         mHandler.postDelayed(mRunnable,1000);
     }
+
+
 
 }

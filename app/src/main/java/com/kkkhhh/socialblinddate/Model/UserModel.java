@@ -24,7 +24,8 @@ public class UserModel {
     public String _uImage6;
     public String  _uUpdateData;
 
-    public List _profileImgList = new ArrayList();
+
+
 
 
 
@@ -35,9 +36,7 @@ public class UserModel {
         this._uID = _uID;
         this._uEmail = _uEmail;
         this._uUpdateData=_uUpdateData;
-
     }
-
     public UserModel(String _uNickname, String _uAge, String _uLocal, String _uGender) {
         this._uNickname = _uNickname;
         this._uAge = _uAge;
@@ -51,6 +50,30 @@ public class UserModel {
         this._uImage4 = _uImage4;
         this._uImage5 = _uImage5;
         this._uImage6 = _uImage6;
+    }
+
+    public String get_uID() {
+        return _uID;
+    }
+
+    public String get_uEmail() {
+        return _uEmail;
+    }
+
+    public String get_uNickname() {
+        return _uNickname;
+    }
+
+    public String get_uAge() {
+        return _uAge;
+    }
+
+    public String get_uLocal() {
+        return _uLocal;
+    }
+
+    public String get_uGender() {
+        return _uGender;
     }
 
     public String get_uImage1() {

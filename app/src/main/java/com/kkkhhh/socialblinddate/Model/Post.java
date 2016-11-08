@@ -15,16 +15,28 @@ public class Post {
     private String author;
     public String title;
     public String body;
+    public String img1;
+    public String img2;
+    public String img3;
+    public String local;
+    public String gender;
+    public String age;
 
     public Post() {
 
     }
 
-    public Post(String uid, String author, String title, String body) {
+    public Post(String uid, String title, String body,String img1,String img2,String img3,String local,String gender,String age) {
         this.uid = uid;
-        this.author = author;
         this.title = title;
         this.body = body;
+        this.img1=img1;
+        this.img2=img2;
+        this.img3=img3;
+        this.local=local;
+        this.gender=gender;
+        this.age=age;
+
     }
 
     @Exclude
@@ -34,6 +46,12 @@ public class Post {
         result.put("author", author);
         result.put("title", title);
         result.put("body", body);
+        result.put("img1", img1);
+        result.put("img2", img2);
+        result.put("img3", img3);
+        result.put("local", local);
+        result.put("gender", gender);
+        result.put("age", age);
         return result;
     }
 }

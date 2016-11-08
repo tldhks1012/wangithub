@@ -91,7 +91,6 @@ public class SignImageAct extends AppCompatActivity {
     private ProgressDialog progressDialog;
 
 
-    private static final String TYPE_IMAGE = "image/*";
     private static final int PICK_FROM_GALLERY = 0;
 
 
@@ -350,51 +349,51 @@ if(signImgStrArray.size()>0){
     //이미지 파일을 전송
     private void uploadStorage(){
         if(sign_img1_str=="@null") {
-            storageRef.child(getUid).child("img1").delete();
+            storageRef.child("userProfile").child(getUid).child("userProfile").child("img1").delete();
         }else{
             byte[] file =Base64.decode(sign_img1_str,0);
-            StorageReference img1_Ref=storageRef.child(getUid).child("img1");
+            StorageReference img1_Ref=storageRef.child("userProfile").child(getUid).child("img1");
             img1_Ref.putBytes(file);
             sign_img1_str=img1_Ref.getPath();
 
         }
         if(sign_img2_str=="@null") {
-            storageRef.child(getUid).child("img2").delete();
+            storageRef.child("userProfile").child(getUid).child("img2").delete();
         }else{
             byte[] file =Base64.decode(sign_img2_str,0);
-            StorageReference img2_Ref=storageRef.child(getUid).child("img2");
+            StorageReference img2_Ref=storageRef.child("userProfile").child(getUid).child("img2");
             img2_Ref.putBytes(file);
             sign_img2_str=img2_Ref.getPath();
         }
         if(sign_img3_str=="@null") {
-            storageRef.child(getUid).child("img3").delete();
+            storageRef.child("userProfile").child(getUid).child("img3").delete();
         }else{
             byte[] file =Base64.decode(sign_img3_str,0);
-            StorageReference img3_Ref=storageRef.child(getUid).child("img3");
+            StorageReference img3_Ref=storageRef.child("userProfile").child(getUid).child("img3");
             img3_Ref.putBytes(file);
             sign_img3_str=img3_Ref.getPath();
         }
         if(sign_img4_str=="@null") {
-            storageRef.child(getUid).child("img4").delete();
+            storageRef.child("userProfile").child(getUid).child("img4").delete();
         }else{
             byte[] file =Base64.decode(sign_img4_str,0);
-            StorageReference img4_Ref=storageRef.child(getUid).child("img4");
+            StorageReference img4_Ref=storageRef.child("userProfile").child(getUid).child("img4");
             img4_Ref.putBytes(file);
             sign_img4_str=img4_Ref.getPath();
         }
         if(sign_img5_str=="@null") {
-            storageRef.child(getUid).child("img5").delete();
+            storageRef.child("userProfile").child(getUid).child("img5").delete();
         }else{
             byte[] file =Base64.decode(sign_img5_str,0);
-            StorageReference img5_Ref=storageRef.child(getUid).child("img5");
+            StorageReference img5_Ref=storageRef.child("userProfile").child(getUid).child("img5");
             img5_Ref.putBytes(file);
             sign_img5_str=img5_Ref.getPath();
         }
         if(sign_img6_str=="@null") {
-            storageRef.child(getUid).child("img6").delete();
+            storageRef.child("userProfile").child(getUid).child("img6").delete();
         }else{
             byte[] file =Base64.decode(sign_img5_str,0);
-            StorageReference img6_Ref=storageRef.child(getUid).child("img6");
+            StorageReference img6_Ref=storageRef.child("userProfile").child(getUid).child("img6");
             img6_Ref.putBytes(file);
             sign_img6_str=img6_Ref.getPath();
         }

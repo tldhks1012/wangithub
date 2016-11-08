@@ -11,6 +11,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -95,9 +98,22 @@ public class FourMainFrg extends Fragment {
                     mStoreRef.child(userProfile._uImage1).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            scrollView.setVisibility(View.VISIBLE);
-                            progressView.setVisibility(View.GONE);
-                            Glide.with(getActivity()).load(uri).into(profileImg);
+
+                            Glide.with(getActivity()).load(uri).listener(new RequestListener<Uri, GlideDrawable>() {
+                                @Override
+                                public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
+                                    scrollView.setVisibility(View.VISIBLE);
+                                    progressView.setVisibility(View.GONE);
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                    scrollView.setVisibility(View.VISIBLE);
+                                    progressView.setVisibility(View.GONE);
+                                    return false;
+                                }
+                            }).into(profileImg);
                         }
                     });
                 }

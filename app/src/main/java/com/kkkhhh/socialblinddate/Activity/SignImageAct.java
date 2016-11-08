@@ -29,6 +29,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.kkkhhh.socialblinddate.Model.UserImg;
 import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.R;
 
@@ -68,7 +69,7 @@ public class SignImageAct extends AppCompatActivity {
     private ArrayList<ImageView> signImgArray = new ArrayList();
 
     private ArrayList<String> signImgStrArray = new ArrayList();
-    private ArrayList<byte[]> signImgByteArray = new ArrayList();
+
     private String[] fileArray=new String[6];
 
     private Button nextBtn;
@@ -89,14 +90,10 @@ public class SignImageAct extends AppCompatActivity {
 
     private ProgressDialog progressDialog;
 
-    private static final int REQUEST_CODE_PROFILE_IMAGE_PICK = 545;
+
     private static final String TYPE_IMAGE = "image/*";
     private static final int PICK_FROM_GALLERY = 0;
-    private static final int PROFILE_IMAGE_ASPECT_X = 3;
-    private static final int PROFILE_IMAGE_ASPECT_Y = 1;
-    private static final int PROFILE_IMAGE_OUTPUT_X = 600;
-    private static final int PROFILE_IMAGE_OUTPUT_Y = 200;
-    private static final String TEMP_FILE_NAME = "profileImage.jpg";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -401,10 +398,10 @@ if(signImgStrArray.size()>0){
             img6_Ref.putBytes(file);
             sign_img6_str=img6_Ref.getPath();
         }
-
+        dbRef.child("users").child(getUid).child("check").setValue(3);
         //이미지 모델 값 전송
-        UserModel userModel = new UserModel(sign_img1_str,sign_img2_str,sign_img3_str,sign_img4_str,sign_img5_str,sign_img6_str);
-        dbRef.child("users").child(getUid).child("profileImg").setValue(userModel, new DatabaseReference.CompletionListener() {
+        UserImg userImg = new UserImg(sign_img1_str,sign_img2_str,sign_img3_str,sign_img4_str,sign_img5_str,sign_img6_str);
+        dbRef.child("users").child(getUid).child("profileImg").setValue(userImg, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if(databaseError !=null){
@@ -414,6 +411,7 @@ if(signImgStrArray.size()>0){
                     Intent intent = new Intent(SignImageAct.this,MainAct.class);
                     startActivity(intent);
                     Toast.makeText(SignImageAct.this,"회원 가입이 완료 되었습니다",Toast.LENGTH_SHORT).show();
+                    finish();
                 }
             }
         });

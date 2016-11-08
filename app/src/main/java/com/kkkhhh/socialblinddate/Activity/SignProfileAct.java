@@ -3,39 +3,24 @@ package com.kkkhhh.socialblinddate.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.kkkhhh.socialblinddate.Model.User;
 import com.kkkhhh.socialblinddate.Model.UserModel;
+import com.kkkhhh.socialblinddate.Model.UserProfile;
 import com.kkkhhh.socialblinddate.R;
 
 import java.util.Arrays;
-
-import static android.R.attr.sharedUserId;
-import static android.R.attr.value;
 
 //////////// 회원가입 유저 프로필 입력 Act //////////////////
 
@@ -44,11 +29,14 @@ public class SignProfileAct extends AppCompatActivity implements View.OnClickLis
     private String[] itemsLocal = {"서울", "부산", "대구", "대전","울산","광주","인천","세종","경기","경남","경북","전남","전북","강원","제주","충북","충남"};
     private String[] itemsGender = {"남자","여자"};
     private FirebaseDatabase mFirebaseDatabase=FirebaseDatabase.getInstance();
-    DatabaseReference databaseReference=mFirebaseDatabase.getReference().getRoot();
+    private DatabaseReference databaseReference=mFirebaseDatabase.getReference().getRoot();
+    private DatabaseReference signProfileRef;
     private EditText nicknameEdit,ageEdit;
     private String nicknameStr, ageStr,genderStr,localStr;
     private FirebaseAuth mFireAuth= FirebaseAuth.getInstance();
     private ProgressDialog progressDialog;
+    private String userID;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +59,12 @@ public class SignProfileAct extends AppCompatActivity implements View.OnClickLis
         profileNextBtn.setOnClickListener(this);
 
         progressDialog=new ProgressDialog(this);
+
+        userID=mFireAuth.getCurrentUser().getUid();
+
+        signProfileRef=databaseReference.child("users").child(userID).child("profile");
+
+
 
     }
 
@@ -125,14 +119,11 @@ public class SignProfileAct extends AppCompatActivity implements View.OnClickLis
     private void writeUserSecond(String nickname, String age, String local,String gender) {
         progressDialog.setMessage("정보를 저장중입니다.");
         progressDialog.show();
-
-
-
-        final String uid=mFireAuth.getCurrentUser().getUid().toString();
-        UserModel user = new UserModel(nickname, age,local,gender);
-        databaseReference.child("users").child(uid).child("profile").setValue(user, new DatabaseReference.CompletionListener() {
+        databaseReference.child("users").child(userID).child("check").setValue(2);
+        UserProfile userProfile = new UserProfile(nickname, age,local,gender);
+        signProfileRef.setValue(userProfile, new DatabaseReference.CompletionListener() {
             @Override
-            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+            public void onComplete(final DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError != null) {
                     System.out.println("Data could not be saved " + databaseError.getMessage());
                     Toast.makeText(SignProfileAct.this, "정보가 저장 되질 않습니다.", Toast.LENGTH_SHORT).show();

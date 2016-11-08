@@ -6,6 +6,7 @@
     <string name="skip">뒤로 가기</string>
     <string name="sign">회원가입 하기</string>
     <string name="login">로그인 하기</string>
+    <string name="writer_notice">-내용을 입력해주세요.\n-음란글, 음란사진 등록 금지 입니다.\n-연락처,카카오톡아이디를 기제하지 마세요.\n-위 사항의 어길시 영구제명 입니다!</string>
 
     <string name="slide_1_title">안녕하세요</string>
     <string name="slide_1_desc">테스트 서비스에 오신걸 환영합니다!</string>

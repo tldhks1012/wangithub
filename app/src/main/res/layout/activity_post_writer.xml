@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backGroudn">
+<LinearLayout
+    android:id="@+id/activity_post_writer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+   android:orientation="vertical">
+        <android.support.v7.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@color/colorPrimary">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:text="콘텐츠 등록"
+                android:textColor="@android:color/white"
+                android:textSize="16dp"/>
+        </android.support.v7.widget.Toolbar>
+    <EditText
+        android:id="@+id/writer_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rect_edit_text"
+        android:hint="제목을 입력해주세요"
+        android:lines="1"
+        android:padding="10dp"
+        android:textCursorDrawable="@null"
+        android:textSize="14dp"/>
+<View
+    android:layout_width="match_parent"
+    android:layout_height="0.3dp"
+    android:background="@color/colorGray"/>
+    <EditText
+        android:id="@+id/writer_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rect_edit_text"
+        android:hint="@string/writer_notice"
+        android:lines="13"
+        android:gravity="top"
+        android:inputType="textMultiLine"
+        android:padding="10dp"
+        android:textCursorDrawable="@null"
+        android:textSize="14dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="-사진등록"
+        android:textColor="@color/colorPrimary"
+        android:layout_margin="10dp"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:baselineAligned="true"
+        android:orientation="vertical">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.1dp"
+            android:background="@color/colorGray"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:orientation="horizontal"
+            android:background="@android:color/white">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="사진1"
+                    android:layout_gravity="center"/>
+                <ImageView
+                    android:id="@+id/writer_img1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+
+                    android:cropToPadding="true"/>
+
+            </FrameLayout>
+
+            <View
+                android:layout_width="0.1dp"
+                android:layout_height="match_parent"
+                android:background="@color/colorGray" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="사진2"
+                    android:layout_gravity="center"/>
+                <ImageView
+                    android:id="@+id/writer_img2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </FrameLayout>
+
+            <View
+                android:layout_width="0.1dp"
+                android:layout_height="match_parent"
+                android:background="@color/colorGray" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="사진3"
+                    android:layout_gravity="center"/>
+
+                <ImageView
+                    android:id="@+id/writer_img3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.1dp"
+            android:background="@color/colorGray"/>
+        </LinearLayout>
+</LinearLayout>
+    <Button
+        android:id="@+id/writer_img_upload_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="10dp"
+        android:text="등록하기"
+        android:textColor="@android:color/white"
+        android:textSize="15dp"
+        android:background="@drawable/rect_primary_btn"/>
+</RelativeLayout>

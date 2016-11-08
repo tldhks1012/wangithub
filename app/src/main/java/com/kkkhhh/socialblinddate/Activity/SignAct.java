@@ -32,7 +32,7 @@ import java.util.Date;
 public class SignAct extends AppCompatActivity implements View.OnClickListener {
 
     private EditText emailEdit,passwordEdit;
-    private String emailStr,passwordStr,nicknameStr,ageStr;
+    private String emailStr,passwordStr;
     private Button signPostBtn,signPerfectBtn;
     private CheckBox signUserInfoCb,signUseCb;
     private TextView signUserInfoView,signUseView;
@@ -40,6 +40,9 @@ public class SignAct extends AppCompatActivity implements View.OnClickListener {
     private FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
     private DatabaseReference mDatabaseRef= mFirebaseDatabase.getReference().getRoot();
     private ProgressDialog progressDialog;
+    private String strCurDate;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +65,10 @@ public class SignAct extends AppCompatActivity implements View.OnClickListener {
 
         signPostBtn.setOnClickListener(this);
 
+        long now = System.currentTimeMillis();
+        Date date = new Date(now);
+        SimpleDateFormat CurDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일");
+        strCurDate = CurDateFormat.format(date);
 
 
     }
@@ -73,7 +80,6 @@ public class SignAct extends AppCompatActivity implements View.OnClickListener {
                 if(task.isSuccessful()){
                     String userID=mFirebaseAuth.getCurrentUser().getUid().toString();
                     userSignPutData(userID,emailStr);
-
                     Intent intent= new Intent(SignAct.this,SignProfileAct.class);
                     startActivity(intent);
                     progressDialog.cancel();
@@ -121,19 +127,18 @@ public class SignAct extends AppCompatActivity implements View.OnClickListener {
 
     private void userSignPutData(String uID,String email){
 
-        long now = System.currentTimeMillis();
-        Date date = new Date(now);
-        SimpleDateFormat CurDateFormat = new SimpleDateFormat("yyyy년 MM월 dd일");
-        String strCurDate = CurDateFormat.format(date);
+
 
         UserModel mUserModel= new UserModel(uID,email,strCurDate);
 
         mDatabaseRef.child("users").child(uID).setValue(mUserModel);
+        mDatabaseRef.child("users").child(uID).child("check").setValue(1);
+
     }
 
 
     private void alertDialog(){
-        LayoutInflater inflater=getLayoutInflater();
+        final LayoutInflater inflater=getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.dialog_sign,null);
         signUserInfoCb=(CheckBox)dialogView.findViewById(R.id.sign_user_info_check);
         signUseCb=(CheckBox)dialogView.findViewById(R.id.sign_user_use_check);

@@ -2,12 +2,8 @@ package com.kkkhhh.socialblinddate.Activity;
 
 import android.content.Intent;
 
-import android.content.SharedPreferences;
-import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -17,48 +13,57 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.kkkhhh.socialblinddate.Model.User;
-import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.R;
 
-public class StartAct extends AppCompatActivity{
+public class StartAct extends AppCompatActivity {
 
-  private FirebaseAuth firebaseAuth= FirebaseAuth.getInstance();
-    private FirebaseDatabase firebaseDatabase=FirebaseDatabase.getInstance();
-    private DatabaseReference databaseReference=firebaseDatabase.getReference().getRoot();
-  private Handler mHandler;
-  private Runnable mRunnable;
-
-
-
-
+    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    private FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+    private DatabaseReference databaseReference = firebaseDatabase.getReference().getRoot();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
-        mRunnable = new Runnable() {
-            @Override
-            public void run() {
-                final FirebaseUser user = firebaseAuth.getCurrentUser();
-                    if(user !=null){
-                        String uid=user.getUid().toString();
 
-
-                }else{
-                    Intent intent = new Intent(StartAct.this,WelcomeAct.class);
-                    startActivity(intent);
-                    finish();
+        final FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user != null) {
+            String uid = user.getUid().toString();
+            databaseReference.child("users").child(uid).child("check").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    int value = dataSnapshot.getValue(Integer.class);
+                    if (value == 1) {
+                        Intent intent = new Intent(StartAct.this, SignProfileAct.class);
+                        startActivity(intent);
+                        finish();
+                    } else if (value == 2) {
+                        Intent intent = new Intent(StartAct.this, SignImageAct.class);
+                        startActivity(intent);
+                        finish();
+                    } else if (value == 3) {
+                        Intent intent = new Intent(StartAct.this, MainAct.class);
+                        startActivity(intent);
+                        finish();
+                    }
                 }
 
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        };
-        mHandler = new Handler();
-        mHandler.postDelayed(mRunnable,1000);
+                }
+            });
+
+
+        } else {
+            Intent intent = new Intent(StartAct.this, WelcomeAct.class);
+            startActivity(intent);
+            finish();
+        }
+
+
     }
-
-
-
 }
+
+

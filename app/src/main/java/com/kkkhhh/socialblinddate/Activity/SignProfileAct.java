@@ -62,7 +62,7 @@ public class SignProfileAct extends AppCompatActivity implements View.OnClickLis
 
         userID=mFireAuth.getCurrentUser().getUid();
 
-        signProfileRef=databaseReference.child("users").child(userID).child("profile");
+        signProfileRef=databaseReference.child("users").child(userID);
 
 
 
@@ -115,13 +115,37 @@ public class SignProfileAct extends AppCompatActivity implements View.OnClickLis
         dialog.show();
 
     }
-    ///Firebase Database 전송 메소드
+    ///Firebase User 모델 전송 메소드
     private void writeUserSecond(String nickname, String age, String local,String gender) {
+        //progressDialog 보여준다
         progressDialog.setMessage("정보를 저장중입니다.");
         progressDialog.show();
-        databaseReference.child("users").child(userID).child("check").setValue(2);
-        UserProfile userProfile = new UserProfile(nickname, age,local,gender);
-        signProfileRef.setValue(userProfile, new DatabaseReference.CompletionListener() {
+
+        //Database userProfile 에 셋팅
+        signProfileRef.child("check").setValue(2);
+        signProfileRef.child("_uNickname").setValue(nickname);
+        signProfileRef.child("_uAge").setValue(age);
+        signProfileRef.child("_uLocal").setValue(local);
+        signProfileRef.child("_uGender").setValue(gender, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                if (databaseError != null) {
+                    //전송 오류가 나면 뜨는 메세지
+                    System.out.println("Data could not be saved " + databaseError.getMessage());
+                    Toast.makeText(SignProfileAct.this, "정보가 저장 되질 않습니다.", Toast.LENGTH_SHORT).show();
+                    progressDialog.cancel();
+                } else {
+                    //전송이 완성 했을 경우
+                    Intent intent = new Intent(SignProfileAct.this, SignImageAct.class);
+                    startActivity(intent);
+                    progressDialog.cancel();
+                    finish();
+                }
+            }
+        });
+        /*UserProfile userProfile = new UserProfile(nickname, age,local,gender);*/
+
+        /*signProfileRef.setValue(userProfile, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(final DatabaseError databaseError, DatabaseReference databaseReference) {
                 if (databaseError != null) {
@@ -136,7 +160,7 @@ public class SignProfileAct extends AppCompatActivity implements View.OnClickLis
                 }
             }
 
-        });
+        });*/
 
     }
     ///버튼클릭 리스너

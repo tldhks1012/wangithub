@@ -240,11 +240,6 @@ public class SignImageAct extends AppCompatActivity {
         }
         return bitmap;
     }
-    public Bitmap byteArrayToBitmap( byte[] byteArray ) {
-        Bitmap bitmap = BitmapFactory.decodeByteArray( byteArray, 0, byteArray.length ) ;
-        return bitmap ;
-    }
-
     public int exifOrientationToDegrees(int exifOrientation) {
         if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
             return 90;
@@ -256,7 +251,7 @@ public class SignImageAct extends AppCompatActivity {
         }
         return 0;
     }
-    //////실제 이미지 파일 경로
+    // 실제 이미지 파일 경로
     private String getRealPathFromURI(Uri contentUri) {
         String[] proj = {MediaStore.Images.Media.DATA};
 
@@ -267,7 +262,8 @@ public class SignImageAct extends AppCompatActivity {
         cursor.moveToFirst();
         return cursor.getString(column_index);
     }
-    //////사진이 있을시에 나오는 Dialog
+
+    // 사진이 있을시에 나오는 Dialog
     private void selectImg(final int position) {
         final CharSequence[] items = {"삭제"};
 
@@ -291,8 +287,9 @@ public class SignImageAct extends AppCompatActivity {
         dialog.show();
 
     }
-    //////회원가입 완료 버튼을 누를시
-private void nextBtnClick() {
+
+    //다음화면 버튼
+private void storageUploadEvent() {
 if(signImgStrArray.size()>0){
     signImgStrArray.clear();
 }
@@ -397,10 +394,18 @@ if(signImgStrArray.size()>0){
             img6_Ref.putBytes(file);
             sign_img6_str=img6_Ref.getPath();
         }
-        dbRef.child("users").child(getUid).child("check").setValue(3);
-        //이미지 모델 값 전송
-        UserImg userImg = new UserImg(sign_img1_str,sign_img2_str,sign_img3_str,sign_img4_str,sign_img5_str,sign_img6_str);
-        dbRef.child("users").child(getUid).child("profileImg").setValue(userImg, new DatabaseReference.CompletionListener() {
+
+        //데이터베이스 레퍼런스 설정(유저 프로필 path)
+        DatabaseReference userImgRef=dbRef.child("users").child(getUid);
+
+        //check 값
+        userImgRef.child("check").setValue(3);
+        userImgRef.child("_uImage1").setValue(sign_img1_str);
+        userImgRef.child("_uImage2").setValue(sign_img2_str);
+        userImgRef.child("_uImage3").setValue(sign_img3_str);
+        userImgRef.child("_uImage4").setValue(sign_img4_str);
+        userImgRef.child("_uImage5").setValue(sign_img5_str);
+        userImgRef.child("_uImage6").setValue(sign_img6_str, new DatabaseReference.CompletionListener() {
             @Override
             public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                 if(databaseError !=null){
@@ -415,6 +420,22 @@ if(signImgStrArray.size()>0){
             }
         });
 
+  /*      UserImg userImg = new UserImg(sign_img1_str,sign_img2_str,sign_img3_str,sign_img4_str,sign_img5_str,sign_img6_str);
+        dbRef.child("users").child(getUid).child("profileImg").setValue(userImg, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                if(databaseError !=null){
+                    Log.d("dataError",databaseError.toString());
+                }else{
+                    progressDialog.cancel();
+                    Intent intent = new Intent(SignImageAct.this,MainAct.class);
+                    startActivity(intent);
+                    Toast.makeText(SignImageAct.this,"회원 가입이 완료 되었습니다",Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+        });*/
+
     }
 
     private void alertDialog(){
@@ -426,7 +447,7 @@ if(signImgStrArray.size()>0){
             public void onClick(View v) {
                     progressDialog.setMessage("회원정보를 저장하고 있습니다.");
                     progressDialog.show();
-                     nextBtnClick();
+                    storageUploadEvent();
                 }
         });
 

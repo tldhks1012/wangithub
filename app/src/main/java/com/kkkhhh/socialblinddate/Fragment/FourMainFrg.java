@@ -4,6 +4,8 @@ package com.kkkhhh.socialblinddate.Fragment;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -34,11 +37,11 @@ import com.rey.material.widget.ProgressView;
  * A simple {@link Fragment} subclass.
  */
 public class FourMainFrg extends Fragment {
-    private FirebaseDatabase mFirebaseDatabase=FirebaseDatabase.getInstance();
-    private DatabaseReference mDatabaseRef=mFirebaseDatabase.getReference();
-    private FirebaseAuth mFireBaseAuth=FirebaseAuth.getInstance();
-    private FirebaseStorage firebaseStorage=FirebaseStorage.getInstance();
-    private StorageReference mStoreRef=firebaseStorage.getReference();
+    private FirebaseDatabase mFirebaseDatabase = FirebaseDatabase.getInstance();
+    private DatabaseReference mDatabaseRef = mFirebaseDatabase.getReference();
+    private FirebaseAuth mFireBaseAuth = FirebaseAuth.getInstance();
+    private FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+    private StorageReference mStoreRef = firebaseStorage.getReference();
     private CircularImageView profileImg;
     private TextView nickName;
     private String uID;
@@ -62,19 +65,20 @@ public class FourMainFrg extends Fragment {
 
         return rootView;
     }
-    private void init(View view){
-      profileImg=(CircularImageView)view.findViewById(R.id.frg_four_profile_img);
-      nickName=(TextView)view.findViewById(R.id.frg_four_nickname);
-        progressView=(ProgressView)view.findViewById(R.id.frg_four_progress);
-        scrollView=(ScrollView)view.findViewById(R.id.frg_four_scroll);
+
+    private void init(View view) {
+        profileImg = (CircularImageView) view.findViewById(R.id.frg_four_profile_img);
+        nickName = (TextView) view.findViewById(R.id.frg_four_nickname);
+        progressView = (ProgressView) view.findViewById(R.id.frg_four_progress);
+        scrollView = (ScrollView) view.findViewById(R.id.frg_four_scroll);
         scrollView.setVisibility(View.GONE);
-      uID=mFireBaseAuth.getCurrentUser().getUid();
+        uID = mFireBaseAuth.getCurrentUser().getUid();
 
 
-        ValueEventListener profileListener = new ValueEventListener() {
+       /* ValueEventListener profileListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot!=null) {
+                if (dataSnapshot != null) {
                     UserProfile userProfile = dataSnapshot.getValue(UserProfile.class);
                     nickName.setText(userProfile._uNickname);
                 }
@@ -86,16 +90,16 @@ public class FourMainFrg extends Fragment {
             }
         };
 
-        DatabaseReference userProfRef=mDatabaseRef.child("users").child(uID).child("profile");
-        userProfRef.addListenerForSingleValueEvent(profileListener);
+        DatabaseReference userProfRef = mDatabaseRef.child("users").child(uID);
+        userProfRef.addListenerForSingleValueEvent(profileListener);*/
 
 
         ValueEventListener profileImgListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot!=null) {
-                    UserImg userProfile = dataSnapshot.getValue(UserImg.class);
-                    mStoreRef.child(userProfile._uImage1).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                if (dataSnapshot != null) {
+                    final UserModel userModel = dataSnapshot.getValue(UserModel.class);
+                    mStoreRef.child(userModel._uImage1).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
 
@@ -114,6 +118,13 @@ public class FourMainFrg extends Fragment {
                                     return false;
                                 }
                             }).into(profileImg);
+
+                            nickName.setText(userModel._uNickname);
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d("FourMainFrg",e.toString());
                         }
                     });
                 }
@@ -124,7 +135,7 @@ public class FourMainFrg extends Fragment {
 
             }
         };
-        DatabaseReference userImgRef=mDatabaseRef.child("users").child(uID).child("profileImg");
+        DatabaseReference userImgRef = mDatabaseRef.child("users").child(uID);
         userImgRef.addListenerForSingleValueEvent(profileImgListener);
     }
 

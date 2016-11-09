@@ -33,6 +33,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.kkkhhh.socialblinddate.Model.Post;
+import com.kkkhhh.socialblinddate.Model.UserImg;
+import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.Model.UserProfile;
 import com.kkkhhh.socialblinddate.R;
 
@@ -70,7 +72,7 @@ public class PostWriterAct extends AppCompatActivity {
 
     private EditText writerTitle, writerBody;
 
-    private String writerTitleStr, writerBodyStr,userGender,userAge,userLocal;
+    private String writerTitleStr, writerBodyStr,userGender,userAge,userLocal,userProfileImg;
 
     private Button uploadButton;
 
@@ -116,14 +118,15 @@ public class PostWriterAct extends AppCompatActivity {
         writerImgCheckArray.add(writer_img2_check);
         writerImgCheckArray.add(writer_img3_check);
 
-        dbRef.child("users").child(getUid).child("profile").addListenerForSingleValueEvent(new ValueEventListener() {
+        dbRef.child("users").child(getUid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot!=null) {
-                    UserProfile userProfile = dataSnapshot.getValue(UserProfile.class);
-                     userLocal=userProfile._uLocal;
-                    userGender=userProfile._uGender;
-                    userAge=userProfile._uAge;
+                    UserModel userModel = dataSnapshot.getValue(UserModel.class);
+                    userLocal=userModel._uLocal;
+                    userGender=userModel._uGender;
+                    userAge=userModel._uAge;
+                    userProfileImg=userModel._uImage1;
 
                 }else{
                     Toast.makeText(PostWriterAct.this,"유저 정보를 불러오는데 실패를 하였습니다.",Toast.LENGTH_SHORT).show();
@@ -136,7 +139,6 @@ public class PostWriterAct extends AppCompatActivity {
                 Log.d("databaseError",databaseError.toString());
             }
         });
-
 
         progressDialog = new ProgressDialog(PostWriterAct.this);
 
@@ -310,8 +312,11 @@ public class PostWriterAct extends AppCompatActivity {
 
     }
 
-    //////회원가입 완료 버튼을 누를시
+    //////업로드 버튼
     private void uploadButtonClick() {
+
+        progressDialog.setMessage("포스트를 저장 중 입니다.");
+        progressDialog.show();
         if (writerImgStrArray.size() > 0) {
             writerImgStrArray.clear();
         }
@@ -355,7 +360,7 @@ public class PostWriterAct extends AppCompatActivity {
             storageRef.child(getUid).child("img1").delete();
         } else {
             byte[] file = Base64.decode(writer_img1_str, 0);
-            StorageReference img1_Ref = storageRef.child(getUid).child("img1");
+            StorageReference img1_Ref = storageRef.child("post").child(getUid).child("img1");
             img1_Ref.putBytes(file);
             writer_img1_str = img1_Ref.getPath();
 
@@ -364,7 +369,7 @@ public class PostWriterAct extends AppCompatActivity {
             storageRef.child(getUid).child("img2").delete();
         } else {
             byte[] file = Base64.decode(writer_img2_str, 0);
-            StorageReference img2_Ref = storageRef.child(getUid).child("img2");
+            StorageReference img2_Ref = storageRef.child("post").child(getUid).child("img2");
             img2_Ref.putBytes(file);
             writer_img2_str = img2_Ref.getPath();
         }
@@ -372,17 +377,17 @@ public class PostWriterAct extends AppCompatActivity {
             storageRef.child(getUid).child("img3").delete();
         } else {
             byte[] file = Base64.decode(writer_img3_str, 0);
-            StorageReference img3_Ref = storageRef.child(getUid).child("img3");
+            StorageReference img3_Ref = storageRef.child("post").child(getUid).child("img3");
             img3_Ref.putBytes(file);
             writer_img3_str = img3_Ref.getPath();
         }
-        writeNewPost(getUid, writerTitleStr, writerBodyStr, writer_img1_str, writer_img2_str, writer_img3_str);
+        writeNewPost(getUid,userProfileImg, writerTitleStr, writerBodyStr, writer_img1_str, writer_img2_str, writer_img3_str,userLocal,userGender,userAge);
 
     }
 
-    private void writeNewPost(String userId, String title, String body, String img1, String img2, String img3) {
+    private void writeNewPost(String userId,String userImg, String title, String body, String img1, String img2, String img3,String local,String gender,String age) {
         String key = dbRef.child("posts").push().getKey();
-        Post post = new Post(userId, title, body, img1, img2, img3,userLocal,userGender,userAge);
+        Post post = new Post(userId,userImg, title, body, img1, img2, img3,local,gender,age);
         Map<String, Object> postValues = post.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();

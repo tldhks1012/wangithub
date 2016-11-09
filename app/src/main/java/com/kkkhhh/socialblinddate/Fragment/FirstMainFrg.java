@@ -81,7 +81,7 @@ public class FirstMainFrg extends Fragment {
         mManager.setReverseLayout(true);
         mManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(mManager);
-        Query postsQuery = mDatabase.child("posts").limitToFirst(10);
+
 
         PostTask postTask=new PostTask();
         postTask.execute();

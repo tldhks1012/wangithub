@@ -9,6 +9,7 @@ import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ import com.kkkhhh.socialblinddate.Model.Post;
 import com.kkkhhh.socialblinddate.R;
 
 import com.melnykov.fab.FloatingActionButton;
+import com.rey.material.widget.ProgressView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +43,7 @@ public class FirstMainFrg extends Fragment {
     private DatabaseReference mPostRef;
     private PostAdapter mAdapter;
     private List<Post> postList;
+    private ProgressView progressView;
 
 
     public FirstMainFrg() {
@@ -61,6 +64,9 @@ public class FirstMainFrg extends Fragment {
                 startActivity(intent);
             }
         });
+
+        progressView=(ProgressView)rootView.findViewById(R.id.frg_first_progress);
+
         postList=new ArrayList<Post>();
         recyclerView = (RecyclerView) rootView.findViewById(R.id.rv_recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -68,6 +74,7 @@ public class FirstMainFrg extends Fragment {
         mDatabase= FirebaseDatabase.getInstance().getReference();
         mPostRef=mDatabase.child("posts");
         mPostRef.keepSynced(true);
+        mPostRef.limitToFirst(1);
 
 
         return rootView;
@@ -115,6 +122,8 @@ public class FirstMainFrg extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            /*recyclerView.setVisibility(View.GONE);*/
+
         }
         @Override
         protected String doInBackground(String... params) {
@@ -122,11 +131,15 @@ public class FirstMainFrg extends Fragment {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     loadData(dataSnapshot);
+                    Log.d("getKey",dataSnapshot.getKey());
+                    /*recyclerView.setVisibility(View.VISIBLE);*/
+                    progressView.setVisibility(View.GONE);
+
                 }
 
                 @Override
                 public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                    loadData(dataSnapshot);
+                  /*  loadData(dataSnapshot);*/
 
                 }
 
@@ -150,6 +163,7 @@ public class FirstMainFrg extends Fragment {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+
         }
     }
 }

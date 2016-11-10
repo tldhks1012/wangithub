@@ -2,33 +2,48 @@ package com.kkkhhh.socialblinddate.Fragment;
 
 
 import android.content.Intent;
-import android.os.AsyncTask;
+
+import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
 
+
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 
-
-import com.google.firebase.database.ChildEventListener;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 
+
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.kkkhhh.socialblinddate.Activity.PostWriterAct;
-import com.kkkhhh.socialblinddate.Adapter.PostAdapter;
+
 import com.kkkhhh.socialblinddate.Model.Post;
 import com.kkkhhh.socialblinddate.R;
 
+
 import com.melnykov.fab.FloatingActionButton;
+import com.poliveira.parallaxrecyclerview.HeaderLayoutManagerFixed;
+import com.poliveira.parallaxrecyclerview.ParallaxRecyclerAdapter;
 import com.rey.material.widget.ProgressView;
 
 import java.util.ArrayList;
@@ -41,9 +56,10 @@ public class FirstMainFrg extends Fragment {
     private LinearLayoutManager mManager;
     private DatabaseReference mDatabase;
     private DatabaseReference mPostRef;
-    private PostAdapter mAdapter;
+    private ParallaxRecyclerAdapter<Post> mAdapter;
     private List<Post> postList;
     private ProgressView progressView;
+    private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
 
 
     public FirstMainFrg() {
@@ -65,19 +81,42 @@ public class FirstMainFrg extends Fragment {
             }
         });
 
-        progressView=(ProgressView)rootView.findViewById(R.id.frg_first_progress);
+        progressView = (ProgressView) rootView.findViewById(R.id.frg_first_progress);
 
-        postList=new ArrayList<Post>();
+        postList = new ArrayList<Post>();
         recyclerView = (RecyclerView) rootView.findViewById(R.id.rv_recycler_view);
         recyclerView.setHasFixedSize(true);
-
-        mDatabase= FirebaseDatabase.getInstance().getReference();
-        mPostRef=mDatabase.child("posts");
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mPostRef = mDatabase.child("/posts/man-posts/");
         mPostRef.keepSynced(true);
-        mPostRef.limitToFirst(1);
-
 
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        progressView.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.INVISIBLE);
+        mPostRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Post postModel = postSnapshot.getValue(Post.class);
+                    postList.add(postModel);
+                }
+                if (postList.size() >=8) {
+                    recyclerView.setAdapter(mAdapter);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        init();
     }
 
     @Override
@@ -90,14 +129,8 @@ public class FirstMainFrg extends Fragment {
         recyclerView.setLayoutManager(mManager);
 
 
-        PostTask postTask=new PostTask();
-        postTask.execute();
-
-
-
-
-
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -106,66 +139,97 @@ public class FirstMainFrg extends Fragment {
         }
     }
 
-    public void loadData(DataSnapshot dataSnapshot){
-        System.out.println(dataSnapshot.getValue());
-
-        Post postModel =dataSnapshot.getValue(Post.class);
-
-        postList.add(postModel);
-
-        mAdapter = new PostAdapter(postList,getActivity());
-
-        recyclerView.setAdapter(mAdapter);
-    }
-
-    private class PostTask extends AsyncTask<String,String,String>{
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            /*recyclerView.setVisibility(View.GONE);*/
-
-        }
-        @Override
-        protected String doInBackground(String... params) {
-            mPostRef.addChildEventListener(new ChildEventListener() {
-                @Override
-                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    loadData(dataSnapshot);
-                    Log.d("getKey",dataSnapshot.getKey());
-                    /*recyclerView.setVisibility(View.VISIBLE);*/
-                    progressView.setVisibility(View.GONE);
-
-                }
-
-                @Override
-                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                  /*  loadData(dataSnapshot);*/
-
-                }
-
-                @Override
-                public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                }
-
-                @Override
-                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-            return null;
-        }
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (postList.size() > 1) {
+            postList.clear();
         }
     }
+
+
+    private void init() {
+        mAdapter = new ParallaxRecyclerAdapter<Post>(postList) {
+            @Override
+            public void onBindViewHolderImpl(final RecyclerView.ViewHolder viewHolder, ParallaxRecyclerAdapter<Post> adapter,final int position) {
+                final Post post = postList.get(position);
+                if (post.userProfileImg != null) {
+                    storageReference.child(post.userProfileImg).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            Glide.with(getActivity()).load(uri).listener(new RequestListener<Uri, GlideDrawable>() {
+                                @Override
+                                public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+
+                                        ((ViewHolder) viewHolder).cardUserGender.setText(post.gender);
+                                        ((ViewHolder) viewHolder).cardUserAge.setText(post.age);
+                                        ((ViewHolder) viewHolder).cardUserLocal.setText(post.local);
+                                        ((ViewHolder) viewHolder).cardPostTitle.setText(post.title);
+                                        progressView.setVisibility(View.INVISIBLE);
+                                        recyclerView.setVisibility(View.VISIBLE);
+                                    return false;
+
+                                }
+                            }).into(((ViewHolder) viewHolder).cardUserImg);
+
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    });
+                } else {
+
+                }
+            }
+
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolderImpl(ViewGroup viewGroup, ParallaxRecyclerAdapter<Post> adapter, int i) {
+                return new ViewHolder(getActivity().getLayoutInflater().inflate(R.layout.card_post, viewGroup, false));
+            }
+
+            @Override
+            public int getItemCountImpl(ParallaxRecyclerAdapter<Post> adapter) {
+                return postList.size();
+            }
+
+        };
+
+
+        HeaderLayoutManagerFixed layoutManagerFixed = new HeaderLayoutManagerFixed(getActivity());
+        recyclerView.setLayoutManager(layoutManagerFixed);
+        View header = getActivity().getLayoutInflater().inflate(R.layout.card_post_header, recyclerView, false);
+        layoutManagerFixed.setHeaderIncrementFixer(header);
+        mAdapter.setShouldClipView(false);
+        mAdapter.setParallaxHeader(header, recyclerView);
+        mAdapter.setData(postList);
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+
+        private ImageView cardUserImg;
+        private TextView cardUserGender;
+        private TextView cardUserAge;
+        private TextView cardUserLocal;
+        private TextView cardPostTitle;
+
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            cardUserImg = (ImageView) itemView.findViewById(R.id.card_img);
+            cardUserGender = (TextView) itemView.findViewById(R.id.card_gender);
+            cardUserAge = (TextView) itemView.findViewById(R.id.card_age);
+            cardUserLocal = (TextView) itemView.findViewById(R.id.card_local);
+            cardPostTitle = (TextView) itemView.findViewById(R.id.card_title);
+        }
+    }
+
 }
 
 

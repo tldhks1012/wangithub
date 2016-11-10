@@ -34,6 +34,12 @@
     android:layout_width="match_parent"
     android:layout_height="0.3dp"
     android:background="@color/colorGray"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@android:color/white">
     <EditText
         android:id="@+id/writer_body"
         android:layout_width="match_parent"
@@ -46,97 +52,52 @@
         android:padding="10dp"
         android:textCursorDrawable="@null"
         android:textSize="14dp"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="-사진등록"
-        android:textColor="@color/colorPrimary"
-        android:layout_margin="10dp"/>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:baselineAligned="true"
-        android:orientation="vertical">
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.1dp"
-            android:background="@color/colorGray"/>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:orientation="horizontal"
-            android:background="@android:color/white">
+
 
             <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_margin="10dp">
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorGray"
+                    android:layout_gravity="left"/>
 
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorGray"
+                    android:layout_gravity="top"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="사진1"
+                    android:text="사진등록"
                     android:layout_gravity="center"/>
                 <ImageView
                     android:id="@+id/writer_img1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-
                     android:cropToPadding="true"/>
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorGray"
+                    android:layout_gravity="right"/>
 
-            </FrameLayout>
-
-            <View
-                android:layout_width="0.1dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorGray" />
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="사진2"
-                    android:layout_gravity="center"/>
-                <ImageView
-                    android:id="@+id/writer_img2"
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="1dp"
+                    android:background="@color/colorGray"
+                    android:layout_gravity="bottom"/>
             </FrameLayout>
 
-            <View
-                android:layout_width="0.1dp"
-                android:layout_height="match_parent"
-                android:background="@color/colorGray" />
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="사진3"
-                    android:layout_gravity="center"/>
-
-                <ImageView
-                    android:id="@+id/writer_img3"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-            </FrameLayout>
-
-        </LinearLayout>
         <View
             android:layout_width="match_parent"
-            android:layout_height="0.1dp"
+            android:layout_height="0.3dp"
             android:background="@color/colorGray"/>
         </LinearLayout>
+
 </LinearLayout>
     <Button
         android:id="@+id/writer_img_upload_btn"

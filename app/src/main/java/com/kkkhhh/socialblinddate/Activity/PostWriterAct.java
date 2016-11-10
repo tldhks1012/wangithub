@@ -47,19 +47,14 @@ import java.util.Map;
 
 public class PostWriterAct extends AppCompatActivity {
     private ImageView
-            writer_img1 = null,
-            writer_img2 = null,
-            writer_img3 = null;
+            writer_img1 = null;
+
 
     private boolean
-            writer_img1_check = false,
-            writer_img2_check = false,
-            writer_img3_check = false;
-
+            writer_img1_check = false;
     private String
-            writer_img1_str,
-            writer_img2_str,
-            writer_img3_str;
+            writer_img1_str;
+
 
 
     private ArrayList<Boolean> writerImgCheckArray = new ArrayList();
@@ -68,7 +63,7 @@ public class PostWriterAct extends AppCompatActivity {
 
     private ArrayList<String> writerImgStrArray = new ArrayList();
 
-    private String[] fileArray = new String[3];
+    private String[] fileArray = new String[1];
 
     private EditText writerTitle, writerBody;
 
@@ -90,6 +85,7 @@ public class PostWriterAct extends AppCompatActivity {
 
     private ProgressDialog progressDialog;
 
+    String key ;
 
     private static final int PICK_FROM_GALLERY = 0;
 
@@ -109,14 +105,11 @@ public class PostWriterAct extends AppCompatActivity {
 
         writer_img1 = (ImageView) findViewById(R.id.writer_img1);
         writerImgArray.add(writer_img1);
-        writer_img2 = (ImageView) findViewById(R.id.writer_img2);
-        writerImgArray.add(writer_img2);
-        writer_img3 = (ImageView) findViewById(R.id.writer_img3);
-        writerImgArray.add(writer_img3);
+
+
 
         writerImgCheckArray.add(writer_img1_check);
-        writerImgCheckArray.add(writer_img2_check);
-        writerImgCheckArray.add(writer_img3_check);
+
 
         dbRef.child("users").child(getUid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -218,7 +211,7 @@ public class PostWriterAct extends AppCompatActivity {
                     int exifDegree = exifOrientationToDegrees(exifOrientation);
                     // 3. 사진의 용량을 줄이는 소스
                     BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inSampleSize = 4;
+                    options.inSampleSize = 3;
                     orgImage = BitmapFactory.decodeFile(uriPath, options);
                     orgImage = rotate(orgImage, exifDegree);
                     // 4. Bitmap값을 배열로 변화
@@ -321,7 +314,7 @@ public class PostWriterAct extends AppCompatActivity {
             writerImgStrArray.clear();
         }
         //fileArray 데이터 값을 이미지 ArrayList로 추출
-        for (int index = 0; index < 3; index++) {
+        for (int index = 0; index < 1; index++) {
             if (fileArray[index] != null) {
                 writerImgStrArray.add(fileArray[index]);
             } else {
@@ -340,59 +333,41 @@ public class PostWriterAct extends AppCompatActivity {
         } else {
             writer_img1_str = "@null";
         }
-        if (imgArray.get(1) != null) {
-            writer_img2_str = imgArray.get(1).toString();
-        } else {
-            writer_img2_str = "@null";
-        }
-        if (imgArray.get(2) != null) {
-            writer_img3_str = imgArray.get(2).toString();
-        } else {
-            writer_img3_str = "@null";
-        }
+
 
         uploadStorage();
     }
 
     //이미지 파일을 전송
     private void uploadStorage() {
+        key = dbRef.child("posts").push().getKey();
         if (writer_img1_str == "@null") {
             storageRef.child(getUid).child("img1").delete();
         } else {
             byte[] file = Base64.decode(writer_img1_str, 0);
-            StorageReference img1_Ref = storageRef.child("post").child(getUid).child("img1");
+            StorageReference img1_Ref = storageRef.child("post").child(key).child(getUid).child("img1");
             img1_Ref.putBytes(file);
             writer_img1_str = img1_Ref.getPath();
 
         }
-        if (writer_img2_str == "@null") {
-            storageRef.child(getUid).child("img2").delete();
-        } else {
-            byte[] file = Base64.decode(writer_img2_str, 0);
-            StorageReference img2_Ref = storageRef.child("post").child(getUid).child("img2");
-            img2_Ref.putBytes(file);
-            writer_img2_str = img2_Ref.getPath();
-        }
-        if (writer_img3_str == "@null") {
-            storageRef.child(getUid).child("img3").delete();
-        } else {
-            byte[] file = Base64.decode(writer_img3_str, 0);
-            StorageReference img3_Ref = storageRef.child("post").child(getUid).child("img3");
-            img3_Ref.putBytes(file);
-            writer_img3_str = img3_Ref.getPath();
-        }
-        writeNewPost(getUid,userProfileImg, writerTitleStr, writerBodyStr, writer_img1_str, writer_img2_str, writer_img3_str,userLocal,userGender,userAge);
+
+        writeNewPost(getUid,userProfileImg, writerTitleStr, writerBodyStr, writer_img1_str,userLocal,userGender,userAge);
 
     }
 
-    private void writeNewPost(String userId,String userImg, String title, String body, String img1, String img2, String img3,String local,String gender,String age) {
-        String key = dbRef.child("posts").push().getKey();
-        Post post = new Post(userId,userImg, title, body, img1, img2, img3,local,gender,age);
+    private void writeNewPost(String userId,String userImg, String title, String body, String img1,String local,String gender,String age) {
+
+        Post post = new Post(userId,userImg, title, body, img1,local,gender,age);
         Map<String, Object> postValues = post.toMap();
 
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/posts/" + key, postValues);
+        /*childUpdates.put("/posts/" + key, postValues);*/
         childUpdates.put("/user-posts/" + userId + "/" + key, postValues);
+        if(gender.equals("여자")) {
+            childUpdates.put("/posts/women-posts/" + key, postValues);
+        }else if(gender.equals("남자")){
+            childUpdates.put("/posts/man-posts/" + key, postValues);
+        }
 
         dbRef.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {
             @Override

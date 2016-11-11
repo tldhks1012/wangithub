@@ -16,7 +16,7 @@ public class Post {
     public String title;
     public String body;
     public String img1;
-
+    public String stampTime;
     public String local;
     public String gender;
     public String age;
@@ -25,7 +25,7 @@ public class Post {
 
     }
 
-    public Post(String uid, String userProfileImg,String title, String body,String img1,String local,String gender,String age) {
+    public Post(String uid, String userProfileImg,String title, String body,String img1,String local,String gender,String age,String stampTime) {
         this.uid = uid;
         this.title = title;
         this.body = body;
@@ -34,6 +34,7 @@ public class Post {
         this.gender=gender;
         this.age=age;
         this.userProfileImg=userProfileImg;
+        this.stampTime=stampTime;
 
     }
 
@@ -48,6 +49,7 @@ public class Post {
         result.put("local", local);
         result.put("gender", gender);
         result.put("age", age);
+        result.put("stampTime",stampTime);
         return result;
     }
 }

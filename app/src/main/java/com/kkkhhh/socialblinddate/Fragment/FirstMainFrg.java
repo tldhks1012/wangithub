@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.app.Fragment;
 
 
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,11 +23,13 @@ import android.widget.TextView;
 
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,6 +41,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.kkkhhh.socialblinddate.Activity.PostWriterAct;
 
+import com.kkkhhh.socialblinddate.Adapter.PostAdapter;
+import com.kkkhhh.socialblinddate.Etc.EndlessRecyclerOnScrollListener;
 import com.kkkhhh.socialblinddate.Model.Post;
 import com.kkkhhh.socialblinddate.R;
 
@@ -46,8 +52,11 @@ import com.poliveira.parallaxrecyclerview.HeaderLayoutManagerFixed;
 import com.poliveira.parallaxrecyclerview.ParallaxRecyclerAdapter;
 import com.rey.material.widget.ProgressView;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import jp.wasabeef.recyclerview.animators.adapters.AlphaInAnimationAdapter;
 
 
 public class FirstMainFrg extends Fragment {
@@ -56,10 +65,13 @@ public class FirstMainFrg extends Fragment {
     private LinearLayoutManager mManager;
     private DatabaseReference mDatabase;
     private DatabaseReference mPostRef;
-    private ParallaxRecyclerAdapter<Post> mAdapter;
+/*    private ParallaxRecyclerAdapter<Post> mAdapter;*/
+    private PostAdapter mAdapter;
     private List<Post> postList;
     private ProgressView progressView;
-    private StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+    private RequestManager mGlideRequestManager;
+
+
 
 
     public FirstMainFrg() {
@@ -82,13 +94,17 @@ public class FirstMainFrg extends Fragment {
         });
 
         progressView = (ProgressView) rootView.findViewById(R.id.frg_first_progress);
-
+        mGlideRequestManager=Glide.with(this);
         postList = new ArrayList<Post>();
         recyclerView = (RecyclerView) rootView.findViewById(R.id.rv_recycler_view);
         recyclerView.setHasFixedSize(true);
+        recyclerView.setItemViewCacheSize(20);
+        recyclerView.setDrawingCacheEnabled(true);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mPostRef = mDatabase.child("/posts/man-posts/");
         mPostRef.keepSynced(true);
+
+
 
         return rootView;
     }
@@ -96,27 +112,6 @@ public class FirstMainFrg extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        progressView.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.INVISIBLE);
-        mPostRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    Post postModel = postSnapshot.getValue(Post.class);
-                    postList.add(postModel);
-                }
-                if (postList.size() >=8) {
-                    recyclerView.setAdapter(mAdapter);
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        init();
     }
 
     @Override
@@ -127,6 +122,42 @@ public class FirstMainFrg extends Fragment {
         mManager.setReverseLayout(true);
         mManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(mManager);
+
+        new Thread() {
+            @Override
+            public void run() {
+                Handler mHandler = new Handler(Looper.getMainLooper());
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPostRef.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                postList.clear();
+                                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                    Post postModel = postSnapshot.getValue(Post.class);
+                                    postList.add(postModel);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+                }, 0);
+
+                mHandler = new Handler(Looper.getMainLooper());
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        init();
+                    }
+                }, 500);
+            }
+        }.start();
+
 
 
     }
@@ -140,16 +171,57 @@ public class FirstMainFrg extends Fragment {
     }
 
     @Override
+    public void onResume(){
+        super.onResume();
+
+    }
+    @Override
     public void onStop() {
         super.onStop();
-        if (postList.size() > 1) {
-            postList.clear();
-        }
+
     }
 
 
     private void init() {
-        mAdapter = new ParallaxRecyclerAdapter<Post>(postList) {
+
+
+
+
+
+        mAdapter=new PostAdapter(postList,getActivity(),mPostRef,progressView,recyclerView);
+        AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
+        alphaAdapter.setDuration(1000);
+        recyclerView.setAdapter(alphaAdapter);
+
+
+
+
+        /*postValueListner=new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Post postModel = postSnapshot.getValue(Post.class);
+                    postList.add(postModel);
+                }
+                mAdapter.notifyDataSetChanged();
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };*/
+
+
+
+
+
+
+     /*   mAdapter = new ParallaxRecyclerAdapter<Post>(postList) {
+
             @Override
             public void onBindViewHolderImpl(final RecyclerView.ViewHolder viewHolder, ParallaxRecyclerAdapter<Post> adapter,final int position) {
                 final Post post = postList.get(position);
@@ -157,14 +229,15 @@ public class FirstMainFrg extends Fragment {
                     storageReference.child(post.userProfileImg).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            Glide.with(getActivity()).load(uri).listener(new RequestListener<Uri, GlideDrawable>() {
-                                @Override
-                                public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
-                                    return false;
-                                }
+                            if(uri!=null) {
+                                mGlideRequestManager.load(uri).listener(new RequestListener<Uri, GlideDrawable>() {
+                                    @Override
+                                    public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
+                                        return false;
+                                    }
 
-                                @Override
-                                public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                    @Override
+                                    public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
 
                                         ((ViewHolder) viewHolder).cardUserGender.setText(post.gender);
                                         ((ViewHolder) viewHolder).cardUserAge.setText(post.age);
@@ -172,11 +245,11 @@ public class FirstMainFrg extends Fragment {
                                         ((ViewHolder) viewHolder).cardPostTitle.setText(post.title);
                                         progressView.setVisibility(View.INVISIBLE);
                                         recyclerView.setVisibility(View.VISIBLE);
-                                    return false;
+                                        return false;
 
-                                }
-                            }).into(((ViewHolder) viewHolder).cardUserImg);
-
+                                    }
+                                }).into(((ViewHolder) viewHolder).cardUserImg);
+                            }
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -208,7 +281,7 @@ public class FirstMainFrg extends Fragment {
         layoutManagerFixed.setHeaderIncrementFixer(header);
         mAdapter.setShouldClipView(false);
         mAdapter.setParallaxHeader(header, recyclerView);
-        mAdapter.setData(postList);
+        mAdapter.setData(postList);*/
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -229,6 +302,9 @@ public class FirstMainFrg extends Fragment {
             cardPostTitle = (TextView) itemView.findViewById(R.id.card_title);
         }
     }
+
+
+
 
 }
 

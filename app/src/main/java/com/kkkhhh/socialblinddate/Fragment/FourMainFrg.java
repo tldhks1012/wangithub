@@ -9,10 +9,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
@@ -26,12 +28,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.kkkhhh.socialblinddate.Etc.CustomBitmapPool;
 import com.kkkhhh.socialblinddate.Model.UserImg;
 import com.kkkhhh.socialblinddate.Model.UserModel;
 import com.kkkhhh.socialblinddate.Model.UserProfile;
 import com.kkkhhh.socialblinddate.R;
 import com.mikhaellopez.circularimageview.CircularImageView;
 import com.rey.material.widget.ProgressView;
+
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -42,11 +47,12 @@ public class FourMainFrg extends Fragment {
     private FirebaseAuth mFireBaseAuth = FirebaseAuth.getInstance();
     private FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     private StorageReference mStoreRef = firebaseStorage.getReference();
-    private CircularImageView profileImg;
+    private ImageView profileImg;
     private TextView nickName;
     private String uID;
     private ProgressView progressView;
     private ScrollView scrollView;
+    private RequestManager mGlideRequestManager;
 
 
     public FourMainFrg() {
@@ -67,31 +73,15 @@ public class FourMainFrg extends Fragment {
     }
 
     private void init(View view) {
-        profileImg = (CircularImageView) view.findViewById(R.id.frg_four_profile_img);
+
+        mGlideRequestManager=Glide.with(this);
+
+        profileImg = (ImageView) view.findViewById(R.id.frg_four_profile_img);
         nickName = (TextView) view.findViewById(R.id.frg_four_nickname);
         progressView = (ProgressView) view.findViewById(R.id.frg_four_progress);
         scrollView = (ScrollView) view.findViewById(R.id.frg_four_scroll);
         scrollView.setVisibility(View.GONE);
         uID = mFireBaseAuth.getCurrentUser().getUid();
-
-
-       /* ValueEventListener profileListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot != null) {
-                    UserProfile userProfile = dataSnapshot.getValue(UserProfile.class);
-                    nickName.setText(userProfile._uNickname);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-
-        DatabaseReference userProfRef = mDatabaseRef.child("users").child(uID);
-        userProfRef.addListenerForSingleValueEvent(profileListener);*/
 
 
         ValueEventListener profileImgListener = new ValueEventListener() {
@@ -102,23 +92,24 @@ public class FourMainFrg extends Fragment {
                     mStoreRef.child(userModel._uImage1).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
+                            if(uri!=null) {
 
-                            Glide.with(getActivity()).load(uri).listener(new RequestListener<Uri, GlideDrawable>() {
-                                @Override
-                                public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
-                                    scrollView.setVisibility(View.VISIBLE);
-                                    progressView.setVisibility(View.GONE);
-                                    return false;
-                                }
+                                mGlideRequestManager.load(uri).bitmapTransform(new CropCircleTransformation(new CustomBitmapPool())).listener(new RequestListener<Uri, GlideDrawable>() {
+                                    @Override
+                                    public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
+                                        scrollView.setVisibility(View.VISIBLE);
+                                        progressView.setVisibility(View.GONE);
+                                        return false;
+                                    }
 
-                                @Override
-                                public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                                    scrollView.setVisibility(View.VISIBLE);
-                                    progressView.setVisibility(View.GONE);
-                                    return false;
-                                }
-                            }).into(profileImg);
-
+                                    @Override
+                                    public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                                        scrollView.setVisibility(View.VISIBLE);
+                                        progressView.setVisibility(View.GONE);
+                                        return false;
+                                    }
+                                }).into(profileImg);
+                            }
                             nickName.setText(userModel._uNickname);
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -136,6 +127,7 @@ public class FourMainFrg extends Fragment {
             }
         };
         DatabaseReference userImgRef = mDatabaseRef.child("users").child(uID);
+        userImgRef.keepSynced(true);
         userImgRef.addListenerForSingleValueEvent(profileImgListener);
     }
 

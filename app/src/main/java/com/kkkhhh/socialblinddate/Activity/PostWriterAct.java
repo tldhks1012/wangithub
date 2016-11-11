@@ -40,7 +40,9 @@ import com.kkkhhh.socialblinddate.R;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -356,10 +358,12 @@ public class PostWriterAct extends AppCompatActivity {
     }
 
     private void writeNewPost(String userId,String userImg, String title, String body, String img1,String local,String gender,String age) {
-
-        Post post = new Post(userId,userImg, title, body, img1,local,gender,age);
+        long now = System.currentTimeMillis();
+        Date date = new Date(now);
+        SimpleDateFormat CurDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String strCurDate = CurDateFormat.format(date);
+        Post post = new Post(userId,userImg, title, body, img1,local,gender,age,strCurDate);
         Map<String, Object> postValues = post.toMap();
-
         Map<String, Object> childUpdates = new HashMap<>();
         /*childUpdates.put("/posts/" + key, postValues);*/
         childUpdates.put("/user-posts/" + userId + "/" + key, postValues);
